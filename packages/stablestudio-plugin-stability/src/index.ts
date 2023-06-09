@@ -11,6 +11,19 @@ import {
   Struct,
 } from "./Proto";
 
+const setApiKeyFromEnvVar = () => {
+  const envApiKey = import.meta.env.VITE_STABILITY_APIKEY;
+
+  const localStorageApiKey = localStorage.getItem("stability-apiKey");
+  if (localStorageApiKey) return localStorageApiKey;
+
+  if (envApiKey) {
+    localStorage.setItem("stability-apiKey", envApiKey);
+    return envApiKey;
+  }
+
+};
+
 const getStableDiffusionDefaultCount = () => 4;
 const getStableDiffusionDefaultInputFromPrompt = (prompt: string) => ({
   prompts: [
@@ -52,6 +65,9 @@ export const createPlugin = StableStudio.createPlugin<{
     | "getStatus"
     | "getStableDiffusionSamplers"
   > => {
+
+    apiKey = setApiKeyFromEnvVar() || apiKey;
+
     if (!apiKey)
       return {
         createStableDiffusionImages: undefined,
